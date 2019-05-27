@@ -1,18 +1,26 @@
+var location = document.getElementById('senate-data') != null ? "senate" : "house";
 
-var url = "https://api.propublica.org/congress/v1/113/senate/members.json";
+var url = "https://api.propublica.org/congress/v1/113/" + location + "/members.json";
 
-	
+var app = new Vue({
+	el: '#app',
+	data: {
+		senators: [],
+	}
+})
+
 
 fetch(url, {
 		headers: {
-			"X-API-KEY":"vqwpr2eNBwzsoorSDYeNzcvBobBHoVdbvkINnMP4"
+			"X-API-KEY": "vqwpr2eNBwzsoorSDYeNzcvBobBHoVdbvkINnMP4"
 		}
 	})
-	.then(function (myData){
-	return myData.json();
-})
 	.then(function (myData) {
-		data = myData;	
+		return myData.json();
+	})
+	.then(function (myData) {
+		data = myData;
+		app.senators = data.results[0].members;
 		implementarDatos()
 	})
 
@@ -32,38 +40,40 @@ function implementarDatos() {
 	listaDropdownEstados(estados);
 
 	//llamo a la funcion que crea la tabla 
-	filtrarYMostrarTabla();
-	
+	filtrarYMostrarTabla(miembros);
+
 	//funcion para filtrar y mostrar la tabla
-function filtrarYMostrarTabla(){
-	var checkBoxesSelec = document.querySelectorAll('input[name=party]:checked');
-	var partidosSelec = Array.from(checkBoxesSelec).map(element => element.value);
-	
-	var filtradoPorPartido = miembro => {
-    if(partidosSelec.indexOf(miembro.party) > -1){
-      return miembro;
-    }
-  }
-	miembrosFiltrados = miembros.filter(filtradoPorPartido);
-	
-	var estadoSelec = document.getElementById("dropStates").value;
-  if (estadoSelec != ""){
-    miembrosFiltrados = miembrosFiltrados.filter(miembro => miembro.state == estadoSelec);
-  }
-	crearTablaEnHtml(miembrosFiltrados);
-}
+	}
 
-//funcion que crea la lista de estados del dropdown
-function listaDropdownEstados(estados){
-  var listaDropdown = document.getElementById("dropStates");
+function filtrarYMostrarTabla(miembros) {
+		var checkBoxesSelec = document.querySelectorAll('input[name=party]:checked');
+		var partidosSelec = Array.from(checkBoxesSelec).map(element => element.value);
 
-  listaDropdown.onchange = filtrarYMostrarTabla;
+		var filtradoPorPartido = miembro => {
+			if (partidosSelec.indexOf(miembro.party) > -1) {
+				return miembro;
+			}
+		}
+		miembrosFiltrados = miembros.filter(filtradoPorPartido);
 
-  estados.forEach(estado => {
-    var opcion = document.createElement("option");
-    opcion.value = estado;
-    opcion.innerText = estado;
-    listaDropdown.appendChild(opcion);
-  })
-}
-}
+		var estadoSelec = document.getElementById("dropStates").value;
+		if (estadoSelec != "") {
+			miembrosFiltrados = miembrosFiltrados.filter(miembro => miembro.state == estadoSelec);
+		}
+		app.senators = miembrosFiltrados;
+	}
+
+	//funcion que crea la lista de estados del dropdown
+	function listaDropdownEstados(estados) {
+		var listaDropdown = document.getElementById("dropStates");
+
+		listaDropdown.onchange = filtrarYMostrarTabla;
+
+		estados.forEach(estado => {
+			var opcion = document.createElement("option");
+			opcion.value = estado;
+			opcion.innerText = estado;
+			listaDropdown.appendChild(opcion);
+		})
+	}
+
