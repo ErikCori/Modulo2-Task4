@@ -1,5 +1,5 @@
 //funcion para filtrar y mostrar la tabla
-function filtrarYMostrarTabla(){
+function filtrarYMostrarTabla(miembros){
 	var checkBoxesSelec = document.querySelectorAll('input[name=party]:checked');
 	var partidosSelec = Array.from(checkBoxesSelec).map(element => element.value);
 	
@@ -14,7 +14,7 @@ function filtrarYMostrarTabla(){
   if (estadoSelec != ""){
     miembrosFiltrados = miembrosFiltrados.filter(miembro => miembro.state == estadoSelec);
   }
-	crearTablaEnHtml(miembrosFiltrados);
+	app.senators = miembrosFiltrados;
 }
 
 //funcion que crea la lista de estados del dropdown

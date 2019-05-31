@@ -1,3 +1,36 @@
+if(document.getElementById('senate-data')){
+	var url = "https://api.propublica.org/congress/v1/113/senate/members.json";
+}else{
+	var url = "https://api.propublica.org/congress/v1/113/house/members.json";
+}
+
+var app = new Vue({
+	el: '#app',
+	data: {
+		senators: [],
+		partidos: [],
+		leastLoyals: [],
+		mostLoyals: [],
+		leastEngageds: [],
+		mostEngageds: [],
+	}
+})
+
+fetch(url, {
+		headers: {
+			"X-API-KEY": "vqwpr2eNBwzsoorSDYeNzcvBobBHoVdbvkINnMP4"
+		}
+	})
+	.then(function (myData) {
+		return myData.json();
+	})
+	.then(function (myData) {
+		data = myData;
+		app.senators = data.results[0].members;
+		implementarDatos()
+	})
+
+
 var statistics = {
 	number_of_democrats: 0,
 	number_of_republicans: 0,
@@ -11,19 +44,40 @@ var statistics = {
 	least_loyal: [],
 	most_loyal: []
 }
+
+function implementarDatos(){
 //Array de miembros
 var miembros = data.results[0].members;
 //Array de partidos
-var partidos = [];
-var datosImportantes = crearListaDatosImportantes();
+
 var ids = ["D", "R", "I"];
+var datosImportantes = crearListaDatosImportantes(miembros);
+var partidos = crearArrayPartidos(miembros, ids);
+statistics.number_of_democrats = partidos[0].cantMiembros;
+statistics.number_of_republicans = partidos[1].cantMiembros;
+statistics.number_of_independents = partidos[2].cantMiembros;
+statistics.democrats_average_votes_with_party = partidos[0].promedioVotos;
+statistics.republicans_average_votes_with_party = partidos[1].promedioVotos;
+statistics.independents_average_votes_with_party = partidos[2].promedioVotos;
+statistics.total = miembros.length;
+statistics.least_loyal = miembrosOrdenados(datosImportantes, "porcVotosConPartido", true );
+statistics.most_loyal = miembrosOrdenados(datosImportantes, "porcVotosConPartido", false);
+statistics.least_engaged = miembrosOrdenados(datosImportantes, "porcVotosPerdidos", true);
+statistics.most_engaged = miembrosOrdenados(datosImportantes, "porcVotosPerdidos", false);
+app.partidos = partidos;
+app.leastLoyals = statistics.least_loyal;
+app.mostLoyals = statistics.most_loyal;
+app.leastEngageds = statistics.least_engaged;
+app.mostEngageds = statistics.most_engaged;
+}
 //Funcion que crea lista de miembros por partido
-function filtrarMiembrosPorPartido(partido) {
+function filtrarMiembrosPorPartido(miembros, partido) {
 	var miembrosPartido = miembros.filter(miembro => miembro.party == partido);
 	return miembrosPartido;
 }
 
-function crearArrayPartidos() {
+function crearArrayPartidos(miembros, ids) {
+	var partidos= [];
 	ids.forEach(function (id) {
 		var partido = {
 			id: "",
@@ -32,11 +86,12 @@ function crearArrayPartidos() {
 			promedioVotos: 0
 		};
 		partido.id = id;
-		partido.miembrosPartido = filtrarMiembrosPorPartido(id);
+		partido.miembrosPartido = filtrarMiembrosPorPartido(miembros,id);
 		partido.cantMiembros = partido.miembrosPartido.length;
 		partido.promedioVotos = promedioDeVotosPorPartido(partido.miembrosPartido);
 		partidos.push(partido);
 	})
+	return partidos;
 }
 
 
@@ -50,7 +105,7 @@ function promedioDeVotosPorPartido(lista) {
 	return promedio.toFixed(2);
 }
 
-function crearListaDatosImportantes() {
+function crearListaDatosImportantes(miembros) {
 	var datosImportantes = [];
 	miembros.forEach(miembro => {
 		var datosMiembro = {
@@ -85,33 +140,17 @@ function ordenarLista(lista, dato, ascendente) {
 }
 
 //Funcion para los menores
-function miembrosOrdenados(dato, ascendente) {
-	var cantidadMiembros = datosImportantes.length;
+function miembrosOrdenados(lista, dato, ascendente) {
+	var cantidadMiembros = lista.length;
 	var porcentajeMinimo = cantidadMiembros * 0.1;
-	ordenarLista(datosImportantes, dato, ascendente);
+	ordenarLista(lista, dato, ascendente);
 	var conMenosVotosConPartido = [];
 	var i = 0;
 
-	while (i < porcentajeMinimo || datosImportantes[i][dato] == datosImportantes[i - 1][dato]) {
-		conMenosVotosConPartido.push(datosImportantes[i]);
+	while (i < porcentajeMinimo || lista[i][dato] == lista[i - 1][dato]) {
+		conMenosVotosConPartido.push(lista[i]);
 		i++;
 	}
 	return conMenosVotosConPartido;
 }
 
-
-crearArrayPartidos();
-statistics.number_of_democrats = partidos[0].cantMiembros;
-statistics.number_of_republicans = partidos[1].cantMiembros;
-statistics.number_of_independents = partidos[2].cantMiembros;
-statistics.democrats_average_votes_with_party = partidos[0].promedioVotos;
-statistics.republicans_average_votes_with_party = partidos[1].promedioVotos;
-statistics.independents_average_votes_with_party = partidos[2].promedioVotos;
-statistics.total = miembros.length;
-statistics.least_loyal = miembrosOrdenados("porcVotosConPartido", true );
-statistics.most_loyal = miembrosOrdenados("porcVotosConPartido", false);
-statistics.least_engaged = miembrosOrdenados("porcVotosPerdidos", true);
-statistics.most_engaged = miembrosOrdenados("porcVotosPerdidos", false);
-
-
-console.log(datosImportantes);

@@ -1,6 +1,10 @@
-var location = document.getElementById('senate-data') != null ? "senate" : "house";
+if(document.getElementById('senate-data')){
+	var url = "https://api.propublica.org/congress/v1/113/senate/members.json";
+}else{
+	var url = "https://api.propublica.org/congress/v1/113/house/members.json";
+}
 
-var url = "https://api.propublica.org/congress/v1/113/" + location + "/members.json";
+
 
 var app = new Vue({
 	el: '#app',
@@ -37,14 +41,15 @@ function implementarDatos() {
 	estados.sort();
 
 	//llamo a la funcion que crea la lista de estados del dropdown
-	listaDropdownEstados(estados);
+	listaDropdownEstados(miembros, estados);
 
 	//llamo a la funcion que crea la tabla 
 	filtrarYMostrarTabla(miembros);
 
-	//funcion para filtrar y mostrar la tabla
+	
 	}
 
+//funcion para filtrar y mostrar la tabla
 function filtrarYMostrarTabla(miembros) {
 		var checkBoxesSelec = document.querySelectorAll('input[name=party]:checked');
 		var partidosSelec = Array.from(checkBoxesSelec).map(element => element.value);
@@ -64,10 +69,10 @@ function filtrarYMostrarTabla(miembros) {
 	}
 
 	//funcion que crea la lista de estados del dropdown
-	function listaDropdownEstados(estados) {
+	function listaDropdownEstados(miembros,estados) {
 		var listaDropdown = document.getElementById("dropStates");
 
-		listaDropdown.onchange = filtrarYMostrarTabla;
+		listaDropdown.onchange = filtrarYMostrarTabla(miembros);
 
 		estados.forEach(estado => {
 			var opcion = document.createElement("option");
