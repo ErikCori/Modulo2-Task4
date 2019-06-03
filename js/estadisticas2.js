@@ -1,6 +1,6 @@
-if(document.getElementById('senate-data')){
+if (document.getElementById('senate-data')) {
 	var url = "https://api.propublica.org/congress/v1/113/senate/members.json";
-}else{
+} else {
 	var url = "https://api.propublica.org/congress/v1/113/house/members.json";
 }
 
@@ -45,30 +45,30 @@ var statistics = {
 	most_loyal: []
 }
 
-function implementarDatos(){
-//Array de miembros
-var miembros = data.results[0].members;
-//Array de partidos
+function implementarDatos() {
+	//Array de miembros
+	var miembros = data.results[0].members;
+	//Array de partidos
 
-var ids = ["D", "R", "I"];
-var datosImportantes = crearListaDatosImportantes(miembros);
-var partidos = crearArrayPartidos(miembros, ids);
-statistics.number_of_democrats = partidos[0].cantMiembros;
-statistics.number_of_republicans = partidos[1].cantMiembros;
-statistics.number_of_independents = partidos[2].cantMiembros;
-statistics.democrats_average_votes_with_party = partidos[0].promedioVotos;
-statistics.republicans_average_votes_with_party = partidos[1].promedioVotos;
-statistics.independents_average_votes_with_party = partidos[2].promedioVotos;
-statistics.total = miembros.length;
-statistics.least_loyal = miembrosOrdenados(datosImportantes, "porcVotosConPartido", true );
-statistics.most_loyal = miembrosOrdenados(datosImportantes, "porcVotosConPartido", false);
-statistics.least_engaged = miembrosOrdenados(datosImportantes, "porcVotosPerdidos", true);
-statistics.most_engaged = miembrosOrdenados(datosImportantes, "porcVotosPerdidos", false);
-app.partidos = partidos;
-app.leastLoyals = statistics.least_loyal;
-app.mostLoyals = statistics.most_loyal;
-app.leastEngageds = statistics.least_engaged;
-app.mostEngageds = statistics.most_engaged;
+	var ids = ["D", "R", "I"];
+	var datosImportantes = crearListaDatosImportantes(miembros);
+	var partidos = crearArrayPartidos(miembros, ids);
+	statistics.number_of_democrats = partidos[0].cantMiembros;
+	statistics.number_of_republicans = partidos[1].cantMiembros;
+	statistics.number_of_independents = partidos[2].cantMiembros;
+	statistics.democrats_average_votes_with_party = partidos[0].promedioVotos;
+	statistics.republicans_average_votes_with_party = partidos[1].promedioVotos;
+	statistics.independents_average_votes_with_party = partidos[2].promedioVotos;
+	statistics.total = miembros.length;
+	statistics.least_loyal = miembrosOrdenados(datosImportantes, "porcVotosConPartido", true);
+	statistics.most_loyal = miembrosOrdenados(datosImportantes, "porcVotosConPartido", false);
+	statistics.least_engaged = miembrosOrdenados(datosImportantes, "porcVotosPerdidos", false);
+	statistics.most_engaged = miembrosOrdenados(datosImportantes, "porcVotosPerdidos", true);
+	app.partidos = partidos;
+	app.leastLoyals = statistics.least_loyal;
+	app.mostLoyals = statistics.most_loyal;
+	app.leastEngageds = statistics.least_engaged;
+	app.mostEngageds = statistics.most_engaged;
 }
 //Funcion que crea lista de miembros por partido
 function filtrarMiembrosPorPartido(miembros, partido) {
@@ -77,7 +77,7 @@ function filtrarMiembrosPorPartido(miembros, partido) {
 }
 
 function crearArrayPartidos(miembros, ids) {
-	var partidos= [];
+	var partidos = [];
 	ids.forEach(function (id) {
 		var partido = {
 			id: "",
@@ -86,9 +86,13 @@ function crearArrayPartidos(miembros, ids) {
 			promedioVotos: 0
 		};
 		partido.id = id;
-		partido.miembrosPartido = filtrarMiembrosPorPartido(miembros,id);
+		partido.miembrosPartido = filtrarMiembrosPorPartido(miembros, id);
 		partido.cantMiembros = partido.miembrosPartido.length;
-		partido.promedioVotos = promedioDeVotosPorPartido(partido.miembrosPartido);
+		if (partido.cantMiembros == 0) {
+			partido.promedioVotos = 0;
+		} else {
+			partido.promedioVotos = promedioDeVotosPorPartido(partido.miembrosPartido);
+		}
 		partidos.push(partido);
 	})
 	return partidos;
@@ -122,7 +126,7 @@ function crearListaDatosImportantes(miembros) {
 			datosMiembro.nombre = miembro.first_name + " " + miembro.middle_name + " " + miembro.last_name;
 		}
 		datosMiembro.party = miembro.party;
-		datosMiembro.votosConPartido = Math.trunc(miembro.total_votes * miembro.votes_with_party_pct);
+		datosMiembro.votosConPartido = Math.trunc((miembro.total_votes * miembro.votes_with_party_pct) / 100);
 		datosMiembro.porcVotosConPartido = miembro.votes_with_party_pct;
 		datosMiembro.votosPerdidos = miembro.missed_votes;
 		datosMiembro.porcVotosPerdidos = miembro.missed_votes_pct;
@@ -153,4 +157,3 @@ function miembrosOrdenados(lista, dato, ascendente) {
 	}
 	return conMenosVotosConPartido;
 }
-

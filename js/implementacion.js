@@ -1,6 +1,6 @@
-if(document.getElementById('senate-data')){
+if (document.getElementById('senate-data')) {
 	var url = "https://api.propublica.org/congress/v1/113/senate/members.json";
-}else{
+} else {
 	var url = "https://api.propublica.org/congress/v1/113/house/members.json";
 }
 
@@ -41,16 +41,12 @@ function implementarDatos() {
 	estados.sort();
 
 	//llamo a la funcion que crea la lista de estados del dropdown
-	listaDropdownEstados(miembros, estados);
+	listaDropdownEstados(estados);
 
 	//llamo a la funcion que crea la tabla 
-	filtrarYMostrarTabla(miembros);
+	filtrarYMostrarTabla();
 
-	
-	}
-
-//funcion para filtrar y mostrar la tabla
-function filtrarYMostrarTabla(miembros) {
+	function filtrarYMostrarTabla() {
 		var checkBoxesSelec = document.querySelectorAll('input[name=party]:checked');
 		var partidosSelec = Array.from(checkBoxesSelec).map(element => element.value);
 
@@ -69,10 +65,10 @@ function filtrarYMostrarTabla(miembros) {
 	}
 
 	//funcion que crea la lista de estados del dropdown
-	function listaDropdownEstados(miembros,estados) {
+	function listaDropdownEstados(estados) {
 		var listaDropdown = document.getElementById("dropStates");
 
-		listaDropdown.onchange = filtrarYMostrarTabla(miembros);
+		listaDropdown.onchange = filtrarYMostrarTabla();
 
 		estados.forEach(estado => {
 			var opcion = document.createElement("option");
@@ -82,3 +78,6 @@ function filtrarYMostrarTabla(miembros) {
 		})
 	}
 
+}
+
+//funcion para filtrar y mostrar la tabla
