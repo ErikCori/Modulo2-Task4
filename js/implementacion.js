@@ -10,6 +10,7 @@ var app = new Vue({
 	el: '#app',
 	data: {
 		senators: [],
+		allSenators:[]
 	}
 })
 
@@ -19,18 +20,19 @@ fetch(url, {
 			"X-API-KEY": "vqwpr2eNBwzsoorSDYeNzcvBobBHoVdbvkINnMP4"
 		}
 	})
-	.then(function (myData) {
-		return myData.json();
-	})
-	.then(function (myData) {
-		data = myData;
-		app.senators = data.results[0].members;
-		implementarDatos()
-	})
+.then(function (myData) {
+	return myData.json();
+})
+.then(function (myData) {
+	data = myData;
+	app.data = data;
+	app.allSenators = data.results[0].members;
+	implementarDatos()
+})
 
 function implementarDatos() {
 	//Array de miembros
-	var miembros = data.results[0].members;
+	var miembros = app.allSenators;
 	//para el caso de un cambio en los checkboxes
 	var checkBoxes = document.querySelectorAll('input[name=party]');
 	checkBoxes.forEach(input => input.onchange = filtrarYMostrarTabla);
@@ -46,38 +48,39 @@ function implementarDatos() {
 	//llamo a la funcion que crea la tabla 
 	filtrarYMostrarTabla();
 
-	function filtrarYMostrarTabla() {
-		var checkBoxesSelec = document.querySelectorAll('input[name=party]:checked');
-		var partidosSelec = Array.from(checkBoxesSelec).map(element => element.value);
+}
+//funcion para filtrar y mostrar la tabla
+function filtrarYMostrarTabla() {
+	var checkBoxesSelec = document.querySelectorAll('input[name=party]:checked');
+	var partidosSelec = Array.from(checkBoxesSelec).map(element => element.value);
+	var miembros = app.allSenators;
 
-		var filtradoPorPartido = miembro => {
-			if (partidosSelec.indexOf(miembro.party) > -1) {
-				return miembro;
-			}
+	var filtradoPorPartido = miembro => {
+		if (partidosSelec.indexOf(miembro.party) > -1) {
+			return miembro;
 		}
-		miembrosFiltrados = miembros.filter(filtradoPorPartido);
-
-		var estadoSelec = document.getElementById("dropStates").value;
-		if (estadoSelec != "") {
-			miembrosFiltrados = miembrosFiltrados.filter(miembro => miembro.state == estadoSelec);
-		}
-		app.senators = miembrosFiltrados;
 	}
+	miembrosFiltrados = miembros.filter(filtradoPorPartido);
 
-	//funcion que crea la lista de estados del dropdown
-	function listaDropdownEstados(estados) {
-		var listaDropdown = document.getElementById("dropStates");
-
-		listaDropdown.onchange = filtrarYMostrarTabla();
-
-		estados.forEach(estado => {
-			var opcion = document.createElement("option");
-			opcion.value = estado;
-			opcion.innerText = estado;
-			listaDropdown.appendChild(opcion);
-		})
+	var estadoSelec = document.getElementById("dropStates").value;
+	if (estadoSelec != "") {
+		miembrosFiltrados = miembrosFiltrados.filter(miembro => miembro.state == estadoSelec);
 	}
-
+	app.senators = miembrosFiltrados; 
 }
 
-//funcion para filtrar y mostrar la tabla
+//funcion que crea la lista de estados del dropdown
+function listaDropdownEstados(estados) {
+	var listaDropdown = document.getElementById("dropStates");
+	
+	listaDropdown.onchange = filtrarYMostrarTabla();
+
+	estados.forEach(estado => {
+		var opcion = document.createElement("option");
+		opcion.value = estado;
+		opcion.innerText = estado;
+		listaDropdown.appendChild(opcion);
+	})
+
+	
+}

@@ -126,7 +126,7 @@ function crearListaDatosImportantes(miembros) {
 			datosMiembro.nombre = miembro.first_name + " " + miembro.middle_name + " " + miembro.last_name;
 		}
 		datosMiembro.party = miembro.party;
-		datosMiembro.votosConPartido = Math.trunc((miembro.total_votes * miembro.votes_with_party_pct) / 100);
+		datosMiembro.votosConPartido = Math.trunc(((miembro.total_votes - miembro.missed_votes) + miembro.votes_with_party_pct) / 100);
 		datosMiembro.porcVotosConPartido = miembro.votes_with_party_pct;
 		datosMiembro.votosPerdidos = miembro.missed_votes;
 		datosMiembro.porcVotosPerdidos = miembro.missed_votes_pct;
